@@ -1,4 +1,3 @@
-
 import React from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -19,11 +18,11 @@ const ContractCard: React.FC<ContractCardProps> = ({ contract }) => {
     <Card className="h-full flex flex-col">
       <CardContent className="pt-6 flex-grow">
         <div className="flex items-start justify-between mb-4">
-          <div>
+          <div className="flex-grow min-w-0">
             <h3 className="font-medium truncate">{contract.company.name}</h3>
             <p className="text-sm text-muted-foreground">{contract.company.cnpj}</p>
           </div>
-          <div className="px-2 py-1 text-xs rounded-full bg-brand-100 text-brand-600 font-medium">
+          <div className="px-2 py-1 text-xs rounded-full bg-brand-100 text-brand-600 font-medium ml-2 truncate max-w-[120px]">
             {contract.contractType}
           </div>
         </div>
