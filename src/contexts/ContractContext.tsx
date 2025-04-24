@@ -1,19 +1,10 @@
 
-import React, { createContext, useContext, useState } from "react";
-import { 
-  Contract, 
-  Company, 
-  ContractType, 
-  CommercialTeam, 
-  BusinessSegment,
-  ProjectType,
-  LeadSource,
-  PaymentMethod,
-  ContractDuration
-} from "@/types";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { Contract } from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from 'sonner';
 import { triggerContractWebhook } from "@/utils/webhookUtils";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ContractContextType {
   contracts: Contract[];
@@ -26,20 +17,38 @@ const ContractContext = createContext<ContractContextType | undefined>(undefined
 export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   console.log("ContractProvider rendering");
   const { user } = useAuth();
-  const [contracts, setContracts] = useState<Contract[]>(() => {
-    console.log("Initializing contracts from localStorage");
-    try {
-      const storedContracts = localStorage.getItem("contracts");
-      if (storedContracts) {
-        const parsed = JSON.parse(storedContracts);
-        console.log("Loaded contracts from localStorage:", parsed);
-        return parsed;
+  const [contracts, setContracts] = useState<Contract[]>([]);
+
+  // Load contracts from Supabase on mount and when user changes
+  useEffect(() => {
+    const loadContracts = async () => {
+      if (!user) {
+        setContracts([]);
+        return;
       }
-    } catch (error) {
-      console.error("Failed to parse stored contracts:", error);
-    }
-    return [];
-  });
+
+      try {
+        const { data, error } = await supabase
+          .from('contracts')
+          .select('*')
+          .eq('user_id', user.id);
+
+        if (error) {
+          console.error('Error loading contracts:', error);
+          toast.error('Erro ao carregar contratos');
+          return;
+        }
+
+        console.log('Loaded contracts from Supabase:', data);
+        setContracts(data || []);
+      } catch (error) {
+        console.error('Error in loadContracts:', error);
+        toast.error('Erro ao carregar contratos');
+      }
+    };
+
+    loadContracts();
+  }, [user]);
 
   const addContract = async (data: Omit<Contract["dados_json"], "dataConfirmed"> & { dataConfirmed: boolean }) => {
     console.log("addContract called with data:", data);
@@ -54,23 +63,28 @@ export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       console.log("Creating new contract with user_id:", user.id);
       
       const newContract: Contract = {
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
         user_id: user.id,
         dados_json: data,
         data_criacao: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
 
-      console.log("Saving contract to local storage");
+      // Save to Supabase
+      const { error } = await supabase
+        .from('contracts')
+        .insert(newContract);
+
+      if (error) {
+        console.error('Error saving contract to Supabase:', error);
+        toast.error('Erro ao salvar contrato no banco de dados');
+        throw error;
+      }
+
+      console.log("Contract saved successfully to Supabase, now updating local state");
+      setContracts(prevContracts => [...prevContracts, newContract]);
       
-      // Guardar no estado e localStorage
-      const updatedContracts = [...contracts, newContract];
-      setContracts(updatedContracts);
-      localStorage.setItem("contracts", JSON.stringify(updatedContracts));
-      
-      console.log("Contract saved successfully, now triggering webhook");
-      
-      // Disparar webhook
+      // Trigger webhook after successful save
       try {
         const webhookSuccess = await triggerContractWebhook(newContract);
         
@@ -83,7 +97,6 @@ export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         }
       } catch (webhookError) {
         console.error("Error in webhook process:", webhookError);
-        // We still consider the contract creation successful even if webhook fails
         toast.warning('Contrato gerado com sucesso, mas houve um problema na notificação do sistema externo.');
       }
       
