@@ -68,6 +68,7 @@ export type ContractFormData = z.infer<typeof formSchema>;
 
 export const useContractForm = () => {
   const { addContract } = useContract();
+  const navigate = useNavigate();
   
   const form = useForm<ContractFormData>({
     resolver: zodResolver(formSchema),
@@ -144,6 +145,7 @@ export const useContractForm = () => {
       });
       
       console.log("Contract added successfully");
+      navigate("/contracts");
       return true;
     } catch (error) {
       console.error("Error in onSubmit:", error);

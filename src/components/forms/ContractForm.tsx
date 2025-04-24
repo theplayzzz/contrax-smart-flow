@@ -30,7 +30,7 @@ const ContractForm: React.FC = () => {
       await onSubmit(data);
       console.log("Form submitted successfully!");
       toast.success("Contrato gerado com sucesso!");
-      navigate("/contracts");
+      // Navigation is now handled in the onSubmit function
     } catch (error) {
       console.error("Erro ao enviar formulário:", error);
       toast.error("Erro ao gerar contrato. Por favor, tente novamente.");

@@ -62,8 +62,11 @@ export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     try {
       console.log("Creating new contract with user_id:", user.id);
       
+      // Generate UUID for contract
+      const contractId = crypto.randomUUID();
+      
       const newContract: Contract = {
-        id: crypto.randomUUID(),
+        id: contractId,
         user_id: user.id,
         dados_json: data,
         data_criacao: new Date().toISOString(),
