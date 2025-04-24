@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useContract } from "@/contexts/ContractContext";
@@ -9,14 +9,27 @@ import { Button } from "@/components/ui/button";
 import { FileText, Plus } from "lucide-react";
 
 const DashboardPage: React.FC = () => {
+  console.log("DashboardPage rendering");
+  
   const { user } = useAuth();
+  console.log("User in DashboardPage:", user);
+  
   const { contracts } = useContract();
-  const userContracts = contracts.filter((contract) => contract.user_id === user?.id);
+  console.log("Contracts in DashboardPage:", contracts);
+  
+  useEffect(() => {
+    console.log("DashboardPage mounted");
+    return () => console.log("DashboardPage unmounted");
+  }, []);
+  
+  const userContracts = user ? contracts.filter((contract) => contract.user_id === user?.id) : [];
+  console.log("Filtered userContracts:", userContracts);
   
   // Get the most recent contracts (up to 3)
   const recentContracts = [...userContracts]
     .sort((a, b) => new Date(b.data_criacao).getTime() - new Date(a.data_criacao).getTime())
     .slice(0, 3);
+  console.log("Recent contracts:", recentContracts);
 
   const getUserDisplayName = () => {
     return user?.name || user?.user_metadata?.name || user?.email || 'User';

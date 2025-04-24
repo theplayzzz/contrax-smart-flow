@@ -24,16 +24,19 @@ interface ContractContextType {
 const ContractContext = createContext<ContractContextType | undefined>(undefined);
 
 export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  console.log("ContractProvider rendering");
   const { user } = useAuth();
   const [contracts, setContracts] = useState<Contract[]>(() => {
-    const storedContracts = localStorage.getItem("contracts");
-    if (storedContracts) {
-      try {
-        return JSON.parse(storedContracts);
-      } catch (error) {
-        console.error("Failed to parse stored contracts:", error);
-        return [];
+    console.log("Initializing contracts from localStorage");
+    try {
+      const storedContracts = localStorage.getItem("contracts");
+      if (storedContracts) {
+        const parsed = JSON.parse(storedContracts);
+        console.log("Loaded contracts from localStorage:", parsed);
+        return parsed;
       }
+    } catch (error) {
+      console.error("Failed to parse stored contracts:", error);
     }
     return [];
   });
@@ -93,11 +96,15 @@ export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const getContractById = (id: string) => {
+    console.log("Getting contract by id:", id, "from contracts:", contracts);
     return contracts.find((contract) => contract.id === id);
   };
 
+  const contextValue = { contracts, addContract, getContractById };
+  console.log("ContractContext value:", contextValue);
+
   return (
-    <ContractContext.Provider value={{ contracts, addContract, getContractById }}>
+    <ContractContext.Provider value={contextValue}>
       {children}
     </ContractContext.Provider>
   );
@@ -106,6 +113,7 @@ export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 export const useContract = () => {
   const context = useContext(ContractContext);
   if (context === undefined) {
+    console.error("useContract was called outside of ContractProvider");
     throw new Error("useContract must be used within a ContractProvider");
   }
   return context;
