@@ -44,7 +44,41 @@ export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
       if (error) throw error;
       
-      setContracts(data || []);
+      // Transform the raw data into Contract objects
+      const transformedContracts: Contract[] = data?.map(item => {
+        // Assuming data is stored in a 'data' JSON field
+        const contractData = typeof item.data === 'string' ? JSON.parse(item.data) : item.data;
+        
+        return {
+          id: item.id,
+          createdAt: item.created_at,
+          userId: item.user_id,
+          company: contractData.company,
+          contractType: contractData.contractType,
+          description: contractData.description,
+          commercialTeam: contractData.commercialTeam,
+          segment: contractData.segment,
+          customSegment: contractData.customSegment,
+          projectType: contractData.projectType,
+          customProjectType: contractData.customProjectType,
+          salesRepresentative: contractData.salesRepresentative,
+          bdrRepresentative: contractData.bdrRepresentative,
+          leadSource: contractData.leadSource,
+          saleDate: contractData.saleDate,
+          paymentDate: contractData.paymentDate,
+          signerName: contractData.signerName,
+          signerEmail: contractData.signerEmail,
+          contractValue: contractData.contractValue,
+          paymentMethod: contractData.paymentMethod,
+          duration: contractData.duration,
+          customDuration: contractData.customDuration,
+          deliverables: contractData.deliverables,
+          observations: contractData.observations,
+          dataConfirmed: contractData.dataConfirmed
+        };
+      }) || [];
+      
+      setContracts(transformedContracts);
     } catch (error) {
       console.error("Error loading contracts:", error);
       toast.error('Erro ao carregar contratos');
@@ -96,7 +130,7 @@ export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
-  const getContractById = async (id: string) => {
+  const getContractById = async (id: string): Promise<Contract | undefined> => {
     try {
       const { data, error } = await supabase
         .from('contracts')
@@ -111,7 +145,40 @@ export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         throw new Error('Unauthorized');
       }
 
-      return data;
+      // Transform the raw data into a Contract object
+      if (data) {
+        const contractData = typeof data.data === 'string' ? JSON.parse(data.data) : data.data;
+        
+        return {
+          id: data.id,
+          createdAt: data.created_at,
+          userId: data.user_id,
+          company: contractData.company,
+          contractType: contractData.contractType,
+          description: contractData.description,
+          commercialTeam: contractData.commercialTeam,
+          segment: contractData.segment,
+          customSegment: contractData.customSegment,
+          projectType: contractData.projectType,
+          customProjectType: contractData.customProjectType,
+          salesRepresentative: contractData.salesRepresentative,
+          bdrRepresentative: contractData.bdrRepresentative,
+          leadSource: contractData.leadSource,
+          saleDate: contractData.saleDate,
+          paymentDate: contractData.paymentDate,
+          signerName: contractData.signerName,
+          signerEmail: contractData.signerEmail,
+          contractValue: contractData.contractValue,
+          paymentMethod: contractData.paymentMethod,
+          duration: contractData.duration,
+          customDuration: contractData.customDuration,
+          deliverables: contractData.deliverables,
+          observations: contractData.observations,
+          dataConfirmed: contractData.dataConfirmed
+        };
+      }
+      
+      return undefined;
     } catch (error) {
       console.error("Error fetching contract:", error);
       toast.error('Erro ao carregar contrato');
