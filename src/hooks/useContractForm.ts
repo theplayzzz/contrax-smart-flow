@@ -58,7 +58,9 @@ export const formSchema = z.object({
   dataConfirmed: z.boolean().refine((val) => val === true, {
     message: "Você precisa confirmar que os dados estão corretos",
   }),
-  contractType: z.enum(["Consultoria", "Assessoria"]),
+  contractType: z.enum(["Consultoria", "Assessoria"], {
+    required_error: "Selecione o tipo de contrato",
+  }),
   description: z.string().optional(),
 });
 
@@ -66,7 +68,6 @@ export type ContractFormData = z.infer<typeof formSchema>;
 
 export const useContractForm = () => {
   const { addContract } = useContract();
-  const navigate = useNavigate();
   
   const form = useForm<ContractFormData>({
     resolver: zodResolver(formSchema),
@@ -95,6 +96,7 @@ export const useContractForm = () => {
       contractType: "Consultoria",
       description: "",
     },
+    mode: "onSubmit", // Changed from default to ensure validation happens on submit
   });
 
   const onSubmit = async (data: ContractFormData) => {
@@ -115,7 +117,9 @@ export const useContractForm = () => {
         businessName
       };
       
-      await addContract({
+      console.log("Preparing to add contract with company data:", company);
+      
+      const result = await addContract({
         company,
         segment: data.segment,
         commercialTeam: data.commercialTeam,
@@ -139,7 +143,7 @@ export const useContractForm = () => {
         description: data.description
       });
       
-      console.log("Contract added successfully");
+      console.log("Contract added successfully, result:", result);
       return true;
     } catch (error) {
       console.error("Error in onSubmit:", error);

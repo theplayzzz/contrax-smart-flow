@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form } from "@/components/ui/form";
@@ -25,6 +26,7 @@ const ContractForm: React.FC = () => {
       await onSubmit(data);
       console.log("Form submitted successfully!");
       toast.success("Contrato gerado com sucesso!");
+      // Ensure we're redirecting after successful form submission
       navigate("/contracts");
     } catch (error) {
       console.error("Erro ao enviar formulário:", error);
@@ -34,11 +36,31 @@ const ContractForm: React.FC = () => {
     }
   };
 
+  // Debug function to check if the form is valid
+  const debugFormSubmit = () => {
+    const isValid = form.formState.isValid;
+    const errors = form.formState.errors;
+    console.log("Form is valid:", isValid);
+    console.log("Form errors:", errors);
+    
+    if (!isValid) {
+      // Show toast with error
+      toast.error("Formulário contém erros. Corrija os campos destacados.");
+    }
+  };
+
   return (
     <Card>
       <CardContent className="pt-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+          <form 
+            onSubmit={(e) => {
+              console.log("Form submit event triggered");
+              debugFormSubmit();
+              form.handleSubmit(handleSubmit)(e);
+            }} 
+            className="space-y-8"
+          >
             <div className="space-y-6">
               <div>
                 <h3 className="text-lg font-medium">Dados da empresa</h3>
@@ -86,6 +108,7 @@ const ContractForm: React.FC = () => {
                 type="submit" 
                 disabled={isSubmitting}
                 className="gap-2"
+                onClick={() => console.log("Button clicked")}
               >
                 {isSubmitting ? (
                   <>

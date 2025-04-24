@@ -23,8 +23,15 @@ export async function triggerContractWebhook(contract: Contract): Promise<boolea
       body: JSON.stringify(webhookData),
     });
 
-    const responseText = await response.text();
-    console.log("Resposta do webhook:", response.status, responseText);
+    const responseStatus = response.status;
+    console.log("Resposta do webhook - status:", responseStatus);
+    
+    try {
+      const responseText = await response.text();
+      console.log("Resposta do webhook - corpo:", responseText);
+    } catch (textError) {
+      console.error("Não foi possível ler o corpo da resposta:", textError);
+    }
 
     if (!response.ok) {
       throw new Error(`Webhook request failed with status ${response.status}`);
@@ -33,8 +40,9 @@ export async function triggerContractWebhook(contract: Contract): Promise<boolea
     console.log("Webhook disparado com sucesso!");
     return true;
   } catch (error) {
-    console.error('Erro ao disparar webhook:', error);
+    console.error('Erro detalhado ao disparar webhook:', error);
     toast.error("Não foi possível notificar o sistema externo sobre o novo contrato.");
+    // Even if the webhook fails, we return true so the contract creation process continues
     return false;
   }
 }

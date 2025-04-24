@@ -65,16 +65,22 @@ export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setContracts(updatedContracts);
       localStorage.setItem("contracts", JSON.stringify(updatedContracts));
       
-      console.log("Contract saved, now triggering webhook");
+      console.log("Contract saved successfully, now triggering webhook");
       
       // Disparar webhook
-      const webhookSuccess = await triggerContractWebhook(newContract);
-      
-      if (webhookSuccess) {
-        console.log("Webhook triggered successfully");
-        toast.success('Contrato gerado e sistema externo notificado com sucesso!');
-      } else {
-        console.warn("Webhook trigger failed");
+      try {
+        const webhookSuccess = await triggerContractWebhook(newContract);
+        
+        if (webhookSuccess) {
+          console.log("Webhook triggered successfully");
+          toast.success('Contrato gerado e sistema externo notificado com sucesso!');
+        } else {
+          console.warn("Webhook trigger failed");
+          toast.warning('Contrato gerado com sucesso, mas houve um problema na notificação do sistema externo.');
+        }
+      } catch (webhookError) {
+        console.error("Error in webhook process:", webhookError);
+        // We still consider the contract creation successful even if webhook fails
         toast.warning('Contrato gerado com sucesso, mas houve um problema na notificação do sistema externo.');
       }
       
