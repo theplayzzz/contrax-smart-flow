@@ -1,56 +1,20 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useContract } from "@/contexts/ContractContext";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ContractDetail from "@/components/contracts/ContractDetail";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { Contract } from "@/types";
 
 const ContractDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { getContractById } = useContract();
   const navigate = useNavigate();
-  const [contract, setContract] = useState<Contract | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   
-  useEffect(() => {
-    const fetchContract = async () => {
-      if (!id) return;
-      
-      try {
-        setIsLoading(true);
-        const fetchedContract = await getContractById(id);
-        
-        if (fetchedContract) {
-          setContract(fetchedContract as Contract);
-        } else {
-          setError("Contrato não encontrado");
-        }
-      } catch (err) {
-        setError("Erro ao carregar contrato");
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchContract();
-  }, [id, getContractById]);
+  const contract = id ? getContractById(id) : undefined;
   
-  if (isLoading) {
-    return (
-      <DashboardLayout title="Carregando...">
-        <div className="text-center py-10">
-          <p className="text-gray-500">Carregando contrato...</p>
-        </div>
-      </DashboardLayout>
-    );
-  }
-  
-  if (error || !contract) {
+  if (!contract) {
     return (
       <DashboardLayout title="Contrato não encontrado">
         <div className="text-center py-10">

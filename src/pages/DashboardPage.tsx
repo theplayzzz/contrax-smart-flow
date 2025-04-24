@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
@@ -10,11 +11,6 @@ import { FileText, Plus } from "lucide-react";
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const { contracts } = useContract();
-  
-  const getUserName = () => {
-    return user?.user_metadata?.name || user?.name || user?.email || "Usuário";
-  };
-
   const userContracts = contracts.filter((contract) => contract.userId === user?.id);
   
   // Get the most recent contracts (up to 3)
@@ -27,7 +23,7 @@ const DashboardPage: React.FC = () => {
       <div className="space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">Bem-vindo, {getUserName()}!</h2>
+            <h2 className="text-2xl font-bold tracking-tight">Bem-vindo, {user?.name || user?.email}!</h2>
             <p className="text-muted-foreground">
               Gerencie e crie seus contratos de forma rápida e intuitiva.
             </p>

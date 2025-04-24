@@ -1,22 +1,15 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
+import { User } from "@/types";
 import { toast } from 'sonner';
-
-// Initialize Supabase client
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  isAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
-  logout: () => Promise<void>;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,122 +17,78 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    // Check active sessions and subscribe to auth changes
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      checkUserRole(session?.user?.id);
-      setIsLoading(false);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        await checkUserRole(session.user.id);
-      } else {
-        setIsAdmin(false);
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error("Failed to parse stored user:", error);
+        localStorage.removeItem("user");
       }
-      setIsLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    }
+    setIsLoading(false);
   }, []);
 
-  const checkUserRole = async (userId: string | undefined) => {
-    if (!userId) return;
-    
-    const { data, error } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', userId)
-      .single();
-
-    if (error) {
-      console.error('Error checking user role:', error);
-      return;
-    }
-
-    setIsAdmin(data?.role === 'admin');
-  };
-
+  // For demo purposes - in a real app, use a proper backend
   const login = async (email: string, password: string) => {
+    setIsLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
-      if (data.user) {
-        await checkUserRole(data.user.id);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Mock validation
+      if (email === "demo@example.com" && password === "password") {
+        const user: User = { id: "1", email, name: "Usuário Demo" };
+        setUser(user);
+        localStorage.setItem("user", JSON.stringify(user));
+        
         const redirectPath = location.state?.from?.pathname || "/dashboard";
         navigate(redirectPath);
         toast.success('Login realizado com sucesso!');
+      } else {
+        toast.error('Credenciais inválidas');
       }
-    } catch (error: any) {
-      toast.error(error.message || 'Erro ao fazer login');
+    } catch (error) {
+      toast.error('Erro ao fazer login');
       console.error("Login error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const register = async (email: string, password: string, name: string) => {
+    setIsLoading(true);
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { name }
-        }
-      });
-
-      if (error) throw error;
-
-      // Create user profile in users table
-      if (data.user) {
-        const { error: profileError } = await supabase
-          .from('users')
-          .insert([
-            {
-              id: data.user.id,
-              email: data.user.email,
-              name,
-              role: 'user' // Default role
-            }
-          ]);
-
-        if (profileError) throw profileError;
-      }
-
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const user: User = { id: Date.now().toString(), email, name };
+      setUser(user);
+      localStorage.setItem("user", JSON.stringify(user));
+      
       navigate("/dashboard");
       toast.success('Registro realizado com sucesso!');
-    } catch (error: any) {
-      toast.error(error.message || 'Erro ao registrar');
+    } catch (error) {
+      toast.error('Erro ao registrar');
       console.error("Registration error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const logout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
-      setUser(null);
-      setIsAdmin(false);
-      navigate("/");
-      toast.success('Logout realizado com sucesso!');
-    } catch (error: any) {
-      toast.error(error.message || 'Erro ao fazer logout');
-      console.error("Logout error:", error);
-    }
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("user");
+    navigate("/");
+    toast.success('Logout realizado com sucesso!');
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAdmin, login, register, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
