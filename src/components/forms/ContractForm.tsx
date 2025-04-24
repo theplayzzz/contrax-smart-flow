@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form } from "@/components/ui/form";
@@ -29,7 +28,6 @@ const ContractForm: React.FC = () => {
       await onSubmit(data);
       console.log("Form submitted successfully!");
       toast.success("Contrato gerado com sucesso!");
-      // Ensure we're redirecting after successful form submission
       navigate("/contracts");
     } catch (error) {
       console.error("Erro ao enviar formulário:", error);
@@ -39,14 +37,12 @@ const ContractForm: React.FC = () => {
     }
   };
 
-  // Debug function to check if the form is valid
   const debugFormSubmit = () => {
     const isValid = form.formState.isValid;
     const errors = form.formState.errors;
     console.log("Form is valid:", isValid);
     console.log("Form errors:", errors);
     
-    // Collect all validation errors for display
     const errorMessages: string[] = [];
     Object.entries(errors).forEach(([field, error]) => {
       if (error && error.message) {
@@ -57,15 +53,20 @@ const ContractForm: React.FC = () => {
     setValidationErrors(errorMessages);
     
     if (!isValid) {
-      // Show toast with error
       toast.error("Formulário contém erros. Corrija os campos destacados.");
     }
     
-    // Highlight all fields with errors by focusing the first one
-    if (Object.keys(errors).length > 0) {
-      // Fix: Use type assertion to ensure the field name is of correct type
-      const firstErrorField = Object.keys(errors)[0] as keyof typeof form.formState.errors;
-      form.setFocus(firstErrorField);
+    const fieldKeys = Object.keys(errors).filter(key => 
+      key !== "root" && form.getFieldState(key as any) !== undefined
+    );
+    
+    if (fieldKeys.length > 0) {
+      const validField = fieldKeys[0] as keyof typeof form.formState.errors;
+      try {
+        form.setFocus(validField);
+      } catch (err) {
+        console.error("Could not focus field:", validField, err);
+      }
     }
   };
 
