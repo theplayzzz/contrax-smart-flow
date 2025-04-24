@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FileText, LayoutDashboard, LogOut, Menu, X } from "lucide-react";
@@ -25,9 +24,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
     setSidebarOpen(!sidebarOpen);
   };
 
+  const getUserName = () => {
+    return user?.user_metadata?.name || user?.name || user?.email || "Usuário";
+  };
+
+  const getUserInitial = () => {
+    return getUserName().charAt(0).toUpperCase();
+  };
+
   return (
     <div className="flex h-screen overflow-hidden">
-      {/* Sidebar for mobile */}
       <div
         className={cn(
           "fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden",
@@ -36,7 +42,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
         onClick={() => setSidebarOpen(false)}
       />
 
-      {/* Sidebar */}
       <div
         className={cn(
           "fixed inset-y-0 left-0 w-64 bg-white border-r border-gray-200 z-30 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:block",
@@ -82,11 +87,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
           <div className="flex items-center space-x-3 mb-3">
             <div className="w-8 h-8 rounded-full bg-brand-200 flex items-center justify-center">
               <span className="text-brand-700 font-medium text-sm">
-                {user?.name?.charAt(0) || user?.email?.charAt(0) || "U"}
+                {getUserInitial()}
               </span>
             </div>
             <div className="truncate">
-              <p className="text-sm font-medium">{user?.name || user?.email}</p>
+              <p className="text-sm font-medium">{getUserName()}</p>
             </div>
           </div>
           <Button
@@ -99,7 +104,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="bg-white shadow-sm z-10">
           <div className="px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
