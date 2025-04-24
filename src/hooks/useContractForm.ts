@@ -113,8 +113,10 @@ export const useContractForm = () => {
       businessName
     };
     
+    // Make sure to include all required fields when calling addContract
     addContract({
       company,
+      segment: data.segment, // Add the missing segment field
       ...rest
     });
     
