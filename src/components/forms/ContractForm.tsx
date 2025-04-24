@@ -63,7 +63,8 @@ const ContractForm: React.FC = () => {
     
     // Highlight all fields with errors by focusing the first one
     if (Object.keys(errors).length > 0) {
-      const firstErrorField = Object.keys(errors)[0];
+      // Fix: Use type assertion to ensure the field name is of correct type
+      const firstErrorField = Object.keys(errors)[0] as keyof typeof form.formState.errors;
       form.setFocus(firstErrorField);
     }
   };
