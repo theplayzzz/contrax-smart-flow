@@ -9,7 +9,7 @@ import { ContractFields } from "./ContractFields";
 import { ContractDetailsFields } from "./ContractDetailsFields";
 import { useContractForm } from "@/hooks/useContractForm";
 import { Separator } from "@/components/ui/separator";
-import { save, webhook } from "lucide-react";
+import { Save, Webhook } from "lucide-react";
 
 const ContractForm: React.FC = () => {
   const navigate = useNavigate();
@@ -82,12 +82,12 @@ const ContractForm: React.FC = () => {
               >
                 {isSubmitting ? (
                   <>
-                    <webhook className="animate-spin h-4 w-4" />
+                    <Webhook className="animate-spin h-4 w-4" />
                     Processando...
                   </>
                 ) : (
                   <>
-                    <save className="h-4 w-4" />
+                    <Save className="h-4 w-4" />
                     Gerar Contrato
                   </>
                 )}
