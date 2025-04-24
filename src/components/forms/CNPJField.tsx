@@ -51,9 +51,6 @@ const CNPJField: React.FC<CNPJFieldProps> = ({
           onChange={handleChange}
           className="w-full"
         />
-        <p className="text-xs text-muted-foreground mt-1">
-          Para testar, use: 12.345.678/0001-99 ou 98.765.432/0001-88
-        </p>
       </div>
       <Button
         type="button"
