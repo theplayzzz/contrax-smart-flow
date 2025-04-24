@@ -114,10 +114,29 @@ export const useContractForm = () => {
     };
     
     // Make sure to include all required fields when calling addContract
+    // Extract and explicitly include all required properties
     addContract({
       company,
-      segment: data.segment, // Add the missing segment field
-      ...rest
+      segment: data.segment,
+      commercialTeam: data.commercialTeam,
+      projectType: data.projectType,
+      customProjectType: data.customProjectType,
+      salesRepresentative: data.salesRepresentative,
+      bdrRepresentative: data.bdrRepresentative,
+      leadSource: data.leadSource,
+      saleDate: data.saleDate,
+      paymentDate: data.paymentDate,
+      signerName: data.signerName,
+      signerEmail: data.signerEmail,
+      contractValue: data.contractValue,
+      paymentMethod: data.paymentMethod,
+      duration: data.duration,
+      customDuration: data.customDuration,
+      deliverables: data.deliverables,
+      observations: data.observations,
+      dataConfirmed: data.dataConfirmed,
+      contractType: data.contractType,
+      description: data.description
     });
     
     navigate("/contracts");
