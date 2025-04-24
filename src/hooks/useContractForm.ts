@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -113,8 +112,6 @@ export const useContractForm = () => {
       businessName
     };
     
-    // Make sure to include all required fields when calling addContract
-    // Extract and explicitly include all required properties
     addContract({
       company,
       segment: data.segment,
@@ -124,8 +121,8 @@ export const useContractForm = () => {
       salesRepresentative: data.salesRepresentative,
       bdrRepresentative: data.bdrRepresentative,
       leadSource: data.leadSource,
-      saleDate: data.saleDate,
-      paymentDate: data.paymentDate,
+      saleDate: data.saleDate.toISOString(),
+      paymentDate: data.paymentDate.toISOString(),
       signerName: data.signerName,
       signerEmail: data.signerEmail,
       contractValue: data.contractValue,
