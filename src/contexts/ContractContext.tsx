@@ -38,25 +38,38 @@ export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return [];
   });
 
-  const addContract = (data: Omit<Contract["dados_json"], "dataConfirmed"> & { dataConfirmed: boolean }) => {
-    if (!user) return;
+  const addContract = async (data: Omit<Contract["dados_json"], "dataConfirmed"> & { dataConfirmed: boolean }) => {
+    if (!user) {
+      toast.error("É necessário estar logado para gerar contratos.");
+      return;
+    }
 
-    const newContract: Contract = {
-      id: Date.now().toString(),
-      user_id: user.id,
-      dados_json: data,
-      data_criacao: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
+    try {
+      const newContract: Contract = {
+        id: Date.now().toString(),
+        user_id: user.id,
+        dados_json: data,
+        data_criacao: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
 
-    const updatedContracts = [...contracts, newContract];
-    setContracts(updatedContracts);
-    localStorage.setItem("contracts", JSON.stringify(updatedContracts));
-    
-    // Trigger webhook
-    triggerContractWebhook(newContract);
-    
-    toast.success('Contrato gerado com sucesso!');
+      // Guardar no estado e localStorage
+      const updatedContracts = [...contracts, newContract];
+      setContracts(updatedContracts);
+      localStorage.setItem("contracts", JSON.stringify(updatedContracts));
+      
+      // Disparar webhook
+      const webhookSuccess = await triggerContractWebhook(newContract);
+      
+      if (webhookSuccess) {
+        toast.success('Contrato gerado e sistema externo notificado com sucesso!');
+      } else {
+        toast.success('Contrato gerado com sucesso, mas houve um problema na notificação do sistema externo.');
+      }
+    } catch (error) {
+      console.error("Erro ao adicionar contrato:", error);
+      toast.error("Ocorreu um erro ao gerar o contrato. Por favor, tente novamente.");
+    }
   };
 
   const getContractById = (id: string) => {

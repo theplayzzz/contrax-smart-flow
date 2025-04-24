@@ -1,3 +1,4 @@
+
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -98,7 +99,7 @@ export const useContractForm = () => {
   });
 
   const onSubmit = (data: ContractFormData) => {
-    const { cnpj, name, ownerName, address, phone, segment, customSegment, cep, businessName, ...rest } = data;
+    const { cnpj, name, ownerName, address, phone, segment, customSegment, cep, businessName } = data;
     
     const company = {
       cnpj,

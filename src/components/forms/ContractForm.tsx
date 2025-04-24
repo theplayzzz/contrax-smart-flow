@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
@@ -9,16 +9,29 @@ import { ContractFields } from "./ContractFields";
 import { ContractDetailsFields } from "./ContractDetailsFields";
 import { useContractForm } from "@/hooks/useContractForm";
 import { Separator } from "@/components/ui/separator";
+import { save, webhook } from "lucide-react";
 
 const ContractForm: React.FC = () => {
   const navigate = useNavigate();
   const { form, onSubmit } = useContractForm();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (data: any) => {
+    setIsSubmitting(true);
+    try {
+      await onSubmit(data);
+    } catch (error) {
+      console.error("Erro ao enviar formulário:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <Card>
       <CardContent className="pt-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
             <div className="space-y-6">
               <div>
                 <h3 className="text-lg font-medium">Dados da empresa</h3>
@@ -57,11 +70,28 @@ const ContractForm: React.FC = () => {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate("/contracts")}
+                disabled={isSubmitting}
               >
                 Cancelar
               </Button>
-              <Button type="submit">Gerar Contrato</Button>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="gap-2"
+              >
+                {isSubmitting ? (
+                  <>
+                    <webhook className="animate-spin h-4 w-4" />
+                    Processando...
+                  </>
+                ) : (
+                  <>
+                    <save className="h-4 w-4" />
+                    Gerar Contrato
+                  </>
+                )}
+              </Button>
             </div>
           </form>
         </Form>
