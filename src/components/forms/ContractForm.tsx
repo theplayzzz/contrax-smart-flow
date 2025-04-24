@@ -10,6 +10,7 @@ import { ContractDetailsFields } from "./ContractDetailsFields";
 import { useContractForm } from "@/hooks/useContractForm";
 import { Separator } from "@/components/ui/separator";
 import { Save, Webhook } from "lucide-react";
+import { toast } from "sonner";
 
 const ContractForm: React.FC = () => {
   const navigate = useNavigate();
@@ -17,11 +18,18 @@ const ContractForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (data: any) => {
+    console.log("Form submitted with data:", data);
     setIsSubmitting(true);
+    
     try {
+      console.log("Attempting to submit form...");
       await onSubmit(data);
+      console.log("Form submitted successfully!");
+      toast.success("Contrato gerado com sucesso!");
+      navigate("/contracts");
     } catch (error) {
       console.error("Erro ao enviar formulário:", error);
+      toast.error("Erro ao gerar contrato. Por favor, tente novamente.");
     } finally {
       setIsSubmitting(false);
     }

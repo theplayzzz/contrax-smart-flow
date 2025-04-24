@@ -2,7 +2,6 @@
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ContractType, CommercialTeam, BusinessSegment, ProjectType, LeadSource, PaymentMethod, ContractDuration } from "@/types";
 import { useContract } from "@/contexts/ContractContext";
 import { useNavigate } from "react-router-dom";
 
@@ -98,46 +97,54 @@ export const useContractForm = () => {
     },
   });
 
-  const onSubmit = (data: ContractFormData) => {
-    const { cnpj, name, ownerName, address, phone, segment, customSegment, cep, businessName } = data;
+  const onSubmit = async (data: ContractFormData) => {
+    console.log("onSubmit called with data:", data);
     
-    const company = {
-      cnpj,
-      name,
-      ownerName,
-      address, 
-      phone,
-      segment,
-      customSegment,
-      cep,
-      businessName
-    };
-    
-    addContract({
-      company,
-      segment: data.segment,
-      commercialTeam: data.commercialTeam,
-      projectType: data.projectType,
-      customProjectType: data.customProjectType,
-      salesRepresentative: data.salesRepresentative,
-      bdrRepresentative: data.bdrRepresentative,
-      leadSource: data.leadSource,
-      saleDate: data.saleDate.toISOString(),
-      paymentDate: data.paymentDate.toISOString(),
-      signerName: data.signerName,
-      signerEmail: data.signerEmail,
-      contractValue: data.contractValue,
-      paymentMethod: data.paymentMethod,
-      duration: data.duration,
-      customDuration: data.customDuration,
-      deliverables: data.deliverables,
-      observations: data.observations,
-      dataConfirmed: data.dataConfirmed,
-      contractType: data.contractType,
-      description: data.description
-    });
-    
-    navigate("/contracts");
+    try {
+      const { cnpj, name, ownerName, address, phone, segment, customSegment, cep, businessName } = data;
+      
+      const company = {
+        cnpj,
+        name,
+        ownerName,
+        address, 
+        phone,
+        segment,
+        customSegment,
+        cep,
+        businessName
+      };
+      
+      await addContract({
+        company,
+        segment: data.segment,
+        commercialTeam: data.commercialTeam,
+        projectType: data.projectType,
+        customProjectType: data.customProjectType,
+        salesRepresentative: data.salesRepresentative,
+        bdrRepresentative: data.bdrRepresentative,
+        leadSource: data.leadSource,
+        saleDate: data.saleDate.toISOString(),
+        paymentDate: data.paymentDate.toISOString(),
+        signerName: data.signerName,
+        signerEmail: data.signerEmail,
+        contractValue: data.contractValue,
+        paymentMethod: data.paymentMethod,
+        duration: data.duration,
+        customDuration: data.customDuration,
+        deliverables: data.deliverables,
+        observations: data.observations,
+        dataConfirmed: data.dataConfirmed,
+        contractType: data.contractType,
+        description: data.description
+      });
+      
+      console.log("Contract added successfully");
+      return true;
+    } catch (error) {
+      console.error("Error in onSubmit:", error);
+      throw error; // Re-throw the error to be caught by the form's error handler
+    }
   };
 
   return {
