@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form } from "@/components/ui/form";
@@ -11,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { Save, Webhook, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ContractFormData } from "@/hooks/useContractForm";
 
 const ContractForm: React.FC = () => {
   const navigate = useNavigate();
@@ -56,16 +58,29 @@ const ContractForm: React.FC = () => {
       toast.error("Formulário contém erros. Corrija os campos destacados.");
     }
     
-    const fieldKeys = Object.keys(errors).filter(key => 
-      key !== "root" && form.getFieldState(key as any) !== undefined
+    // Create a type-safe array of field names from our schema
+    const formFields: Array<keyof ContractFormData> = [
+      "cnpj", "name", "ownerName", "address", "phone", "businessName",
+      "commercialTeam", "segment", "customSegment", "projectType", 
+      "customProjectType", "salesRepresentative", "bdrRepresentative",
+      "leadSource", "saleDate", "paymentDate", "signerName", "signerEmail",
+      "cep", "contractValue", "paymentMethod", "duration", "customDuration",
+      "deliverables", "observations", "dataConfirmed", "contractType", "description"
+    ];
+    
+    // Filter to only get fields that have errors and are valid form fields
+    const fieldKeysWithErrors = Object.keys(errors).filter(key => 
+      key !== "root" && formFields.includes(key as keyof ContractFormData)
     );
     
-    if (fieldKeys.length > 0) {
-      const validField = fieldKeys[0] as keyof typeof form.formState.errors;
+    if (fieldKeysWithErrors.length > 0) {
       try {
-        form.setFocus(validField);
+        // Type assertion is safe here because we've already filtered to valid field names
+        const firstErrorField = fieldKeysWithErrors[0] as keyof ContractFormData;
+        console.log("Focusing on field with error:", firstErrorField);
+        form.setFocus(firstErrorField);
       } catch (err) {
-        console.error("Could not focus field:", validField, err);
+        console.error("Could not focus field:", err);
       }
     }
   };
