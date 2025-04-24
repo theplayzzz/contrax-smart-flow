@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   email: string;
@@ -11,9 +10,18 @@ export interface Company {
   ownerName: string;
   address: string;
   phone: string;
+  segment?: string;
+  customSegment?: string;
+  cep?: string;
+  businessName?: string;
 }
 
-export type ContractType = "Consultoria" | "Assessoria";
+export type CommercialTeam = "Selva" | "Cangaço";
+export type ProjectType = "Recorrente" | "Implementação única" | "Consultoria" | "Mentoria acom. mensal" | "Outro";
+export type BusinessSegment = "Serviço" | "Varejo" | "Indústria" | "Food Service" | "E-commerce" | "SAAS" | "Franquia" | "Imobiliária" | "Outro";
+export type LeadSource = "Inbound" | "Outbound" | "Indicação";
+export type PaymentMethod = "Pix" | "Boleto" | "Cartão de crédito" | "Cheque";
+export type ContractDuration = "12 meses" | "6 meses" | "3 meses" | "Outro";
 
 export interface Contract {
   id: string;
@@ -22,7 +30,28 @@ export interface Contract {
   description?: string;
   createdAt: string;
   userId: string;
+  commercialTeam: CommercialTeam;
+  segment: BusinessSegment;
+  customSegment?: string;
+  projectType: ProjectType;
+  customProjectType?: string;
+  salesRepresentative: string;
+  bdrRepresentative: string;
+  leadSource: LeadSource;
+  saleDate: string;
+  paymentDate: string;
+  signerName: string;
+  signerEmail: string;
+  contractValue: number;
+  paymentMethod: PaymentMethod;
+  duration: ContractDuration;
+  customDuration?: string;
+  deliverables: string;
+  observations?: string;
+  dataConfirmed: boolean;
 }
+
+export type ContractType = "Consultoria" | "Assessoria";
 
 export interface CNPJAResponse {
   cnpj: {
