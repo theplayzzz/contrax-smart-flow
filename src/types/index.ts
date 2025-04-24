@@ -1,7 +1,16 @@
+
 export interface User {
   id: string;
   email: string;
-  name?: string;
+  user_metadata?: {
+    name?: string;
+  };
+}
+
+export interface Profile {
+  id: string;
+  role: 'admin' | 'user';
+  created_at: string;
 }
 
 export interface Company {
@@ -25,30 +34,33 @@ export type ContractDuration = "12 meses" | "6 meses" | "3 meses" | "Outro";
 
 export interface Contract {
   id: string;
-  company: Company;
-  contractType: ContractType;
-  description?: string;
-  createdAt: string;
-  userId: string;
-  commercialTeam: CommercialTeam;
-  segment: BusinessSegment;
-  customSegment?: string;
-  projectType: ProjectType;
-  customProjectType?: string;
-  salesRepresentative: string;
-  bdrRepresentative: string;
-  leadSource: LeadSource;
-  saleDate: string;
-  paymentDate: string;
-  signerName: string;
-  signerEmail: string;
-  contractValue: number;
-  paymentMethod: PaymentMethod;
-  duration: ContractDuration;
-  customDuration?: string;
-  deliverables: string;
-  observations?: string;
-  dataConfirmed: boolean;
+  user_id: string;
+  dados_json: {
+    company: Company;
+    contractType: ContractType;
+    description?: string;
+    commercialTeam: CommercialTeam;
+    segment: BusinessSegment;
+    customSegment?: string;
+    projectType: ProjectType;
+    customProjectType?: string;
+    salesRepresentative: string;
+    bdrRepresentative: string;
+    leadSource: LeadSource;
+    saleDate: string;
+    paymentDate: string;
+    signerName: string;
+    signerEmail: string;
+    contractValue: number;
+    paymentMethod: PaymentMethod;
+    duration: ContractDuration;
+    customDuration?: string;
+    deliverables: string;
+    observations?: string;
+    dataConfirmed: boolean;
+  };
+  data_criacao: string;
+  updated_at: string;
 }
 
 export type ContractType = "Consultoria" | "Assessoria";
@@ -75,3 +87,4 @@ export interface CNPJAResponse {
     tipo: string;
   }>;
 }
+

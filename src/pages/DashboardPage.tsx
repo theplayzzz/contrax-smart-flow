@@ -11,19 +11,23 @@ import { FileText, Plus } from "lucide-react";
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const { contracts } = useContract();
-  const userContracts = contracts.filter((contract) => contract.userId === user?.id);
+  const userContracts = contracts.filter((contract) => contract.user_id === user?.id);
   
   // Get the most recent contracts (up to 3)
   const recentContracts = [...userContracts]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .sort((a, b) => new Date(b.data_criacao).getTime() - new Date(a.data_criacao).getTime())
     .slice(0, 3);
+
+  const getUserDisplayName = () => {
+    return user?.user_metadata?.name || user?.email || 'User';
+  };
 
   return (
     <DashboardLayout title="Dashboard">
       <div className="space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">Bem-vindo, {user?.name || user?.email}!</h2>
+            <h2 className="text-2xl font-bold tracking-tight">Bem-vindo, {getUserDisplayName()}!</h2>
             <p className="text-muted-foreground">
               Gerencie e crie seus contratos de forma rápida e intuitiva.
             </p>

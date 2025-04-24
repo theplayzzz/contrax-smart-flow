@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FileText, LayoutDashboard, LogOut, Menu, X } from "lucide-react";
@@ -15,6 +14,10 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
   const { user, logout } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const getUserDisplayName = () => {
+    return user?.user_metadata?.name || user?.email || 'User';
+  };
 
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -82,11 +85,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, title }) =>
           <div className="flex items-center space-x-3 mb-3">
             <div className="w-8 h-8 rounded-full bg-brand-200 flex items-center justify-center">
               <span className="text-brand-700 font-medium text-sm">
-                {user?.name?.charAt(0) || user?.email?.charAt(0) || "U"}
+                {getUserDisplayName().charAt(0)}
               </span>
             </div>
             <div className="truncate">
-              <p className="text-sm font-medium">{user?.name || user?.email}</p>
+              <p className="text-sm font-medium">{getUserDisplayName()}</p>
             </div>
           </div>
           <Button
