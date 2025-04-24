@@ -1,12 +1,22 @@
 
 import React, { createContext, useContext, useState } from "react";
-import { Contract, Company, ContractType } from "@/types";
+import { 
+  Contract, 
+  Company, 
+  ContractType, 
+  CommercialTeam, 
+  BusinessSegment,
+  ProjectType,
+  LeadSource,
+  PaymentMethod,
+  ContractDuration
+} from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from 'sonner';
 
 interface ContractContextType {
   contracts: Contract[];
-  addContract: (company: Company, contractType: ContractType, description?: string) => void;
+  addContract: (data: Omit<Contract, "id" | "createdAt" | "userId">) => void;
   getContractById: (id: string) => Contract | undefined;
 }
 
@@ -27,16 +37,14 @@ export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return [];
   });
 
-  const addContract = (company: Company, contractType: ContractType, description?: string) => {
+  const addContract = (data: Omit<Contract, "id" | "createdAt" | "userId">) => {
     if (!user) return;
 
     const newContract: Contract = {
       id: Date.now().toString(),
-      company,
-      contractType,
-      description,
       createdAt: new Date().toISOString(),
       userId: user.id,
+      ...data
     };
 
     const updatedContracts = [...contracts, newContract];
