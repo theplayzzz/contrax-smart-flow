@@ -35,6 +35,8 @@ export const CompanyFields = () => {
         setValue("ownerName", companyData.ownerName);
         setValue("address", companyData.address);
         setValue("phone", companyData.phone);
+        // Set businessName with the same company name as default
+        setValue("businessName", companyData.name);
         toast.success("Dados da empresa carregados com sucesso!");
       }
     } catch (error) {
@@ -95,6 +97,20 @@ export const CompanyFields = () => {
           )}
         />
       </div>
+      
+      <FormField
+        control={control}
+        name="businessName"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Razão Social</FormLabel>
+            <FormControl>
+              <Input {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
       
       <FormField
         control={control}

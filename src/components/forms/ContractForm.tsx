@@ -9,17 +9,20 @@ import { ContractFields } from "./ContractFields";
 import { ContractDetailsFields } from "./ContractDetailsFields";
 import { useContractForm } from "@/hooks/useContractForm";
 import { Separator } from "@/components/ui/separator";
-import { Save, Webhook } from "lucide-react";
+import { Save, Webhook, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const ContractForm: React.FC = () => {
   const navigate = useNavigate();
   const { form, onSubmit } = useContractForm();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const handleSubmit = async (data: any) => {
     console.log("Form submitted with data:", data);
     setIsSubmitting(true);
+    setValidationErrors([]);
     
     try {
       console.log("Attempting to submit form...");
@@ -43,15 +46,45 @@ const ContractForm: React.FC = () => {
     console.log("Form is valid:", isValid);
     console.log("Form errors:", errors);
     
+    // Collect all validation errors for display
+    const errorMessages: string[] = [];
+    Object.entries(errors).forEach(([field, error]) => {
+      if (error && error.message) {
+        errorMessages.push(`${field}: ${error.message}`);
+      }
+    });
+    
+    setValidationErrors(errorMessages);
+    
     if (!isValid) {
       // Show toast with error
       toast.error("Formulário contém erros. Corrija os campos destacados.");
+    }
+    
+    // Highlight all fields with errors by focusing the first one
+    if (Object.keys(errors).length > 0) {
+      const firstErrorField = Object.keys(errors)[0];
+      form.setFocus(firstErrorField);
     }
   };
 
   return (
     <Card>
       <CardContent className="pt-6">
+        {validationErrors.length > 0 && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              <div className="font-bold mb-2">Os seguintes campos contêm erros:</div>
+              <ul className="list-disc pl-4">
+                {validationErrors.map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
+            </AlertDescription>
+          </Alert>
+        )}
+        
         <Form {...form}>
           <form 
             onSubmit={(e) => {

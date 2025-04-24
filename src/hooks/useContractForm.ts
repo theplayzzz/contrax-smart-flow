@@ -18,7 +18,7 @@ export const formSchema = z.object({
   name: z.string().min(3, "Nome deve ter pelo menos 3 caracteres"),
   ownerName: z.string().min(3, "Nome do proprietário deve ter pelo menos 3 caracteres"),
   address: z.string().min(5, "Endereço deve ter pelo menos 5 caracteres"),
-  phone: z.string().min(8, "Telefone deve ter pelo menos 8 caracteres"),
+  phone: z.string().min(3, "Telefone deve ter pelo menos 3 caracteres"),
   businessName: z.string().min(3, "Razão Social deve ter pelo menos 3 caracteres"),
   commercialTeam: z.enum(["Selva", "Cangaço"], {
     required_error: "Selecione um time comercial",
@@ -45,7 +45,7 @@ export const formSchema = z.object({
   signerName: z.string().min(3, "Informe o nome completo do assinante"),
   signerEmail: z.string().email("E-mail inválido"),
   cep: z.string().regex(/^\d{5}-\d{3}$/, "CEP inválido"),
-  contractValue: z.number().positive("Valor deve ser maior que zero"),
+  contractValue: z.coerce.number().positive("Valor deve ser maior que zero"),
   paymentMethod: z.enum(["Pix", "Boleto", "Cartão de crédito", "Cheque"], {
     required_error: "Selecione uma forma de pagamento",
   }),
@@ -96,7 +96,7 @@ export const useContractForm = () => {
       contractType: "Consultoria",
       description: "",
     },
-    mode: "onSubmit", // Changed from default to ensure validation happens on submit
+    mode: "onSubmit",
   });
 
   const onSubmit = async (data: ContractFormData) => {
@@ -119,7 +119,7 @@ export const useContractForm = () => {
       
       console.log("Preparing to add contract with company data:", company);
       
-      const result = await addContract({
+      await addContract({
         company,
         segment: data.segment,
         commercialTeam: data.commercialTeam,
@@ -143,11 +143,11 @@ export const useContractForm = () => {
         description: data.description
       });
       
-      console.log("Contract added successfully, result:", result);
+      console.log("Contract added successfully");
       return true;
     } catch (error) {
       console.error("Error in onSubmit:", error);
-      throw error; // Re-throw the error to be caught by the form's error handler
+      throw error;
     }
   };
 
