@@ -99,42 +99,25 @@ export const useContractForm = () => {
   });
 
   const onSubmit = (data: ContractFormData) => {
+    const { cnpj, name, ownerName, address, phone, segment, customSegment, cep, businessName, ...rest } = data;
+    
     const company = {
-      cnpj: data.cnpj,
-      name: data.name,
-      ownerName: data.ownerName,
-      address: data.address,
-      phone: data.phone,
-      segment: data.segment,
-      customSegment: data.customSegment,
-      cep: data.cep,
-      businessName: data.businessName,
+      cnpj,
+      name,
+      ownerName,
+      address, 
+      phone,
+      segment,
+      customSegment,
+      cep,
+      businessName
     };
     
     addContract({
       company,
-      contractType: data.contractType as ContractType,
-      description: data.description,
-      commercialTeam: data.commercialTeam as CommercialTeam,
-      segment: data.segment as BusinessSegment,
-      customSegment: data.customSegment,
-      projectType: data.projectType as ProjectType,
-      customProjectType: data.customProjectType,
-      salesRepresentative: data.salesRepresentative,
-      bdrRepresentative: data.bdrRepresentative,
-      leadSource: data.leadSource as LeadSource,
-      saleDate: data.saleDate.toISOString(),
-      paymentDate: data.paymentDate.toISOString(),
-      signerName: data.signerName,
-      signerEmail: data.signerEmail,
-      contractValue: data.contractValue,
-      paymentMethod: data.paymentMethod as PaymentMethod,
-      duration: data.duration as ContractDuration,
-      customDuration: data.customDuration,
-      deliverables: data.deliverables,
-      observations: data.observations,
-      dataConfirmed: data.dataConfirmed
+      ...rest
     });
+    
     navigate("/contracts");
   };
 

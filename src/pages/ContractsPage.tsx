@@ -24,19 +24,19 @@ const ContractsPage: React.FC = () => {
   const [filterType, setFilterType] = useState<string | null>(null);
 
   // Filter contracts by user
-  const userContracts = contracts.filter((contract) => contract.userId === user?.id);
+  const userContracts = contracts.filter((contract) => contract.user_id === user?.id);
 
   // Apply search and filters
   const filteredContracts = userContracts.filter((contract) => {
     const matchesSearch =
       searchTerm === "" ||
-      contract.company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contract.company.cnpj.toLowerCase().includes(searchTerm.toLowerCase());
+      contract.dados_json.company.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contract.dados_json.company.cnpj.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesType =
       !filterType ||
       filterType === "all" ||
-      contract.contractType === filterType;
+      contract.dados_json.contractType === filterType;
 
     return matchesSearch && matchesType;
   });

@@ -1,4 +1,6 @@
 
+import { Contract } from "@/types";
+
 export async function triggerContractWebhook(contract: Contract) {
   try {
     const response = await fetch('https://webhook.lucasfelix.com/webhook/8d8c0906-9eb9-4657-8d48-5231c1fc1feb', {

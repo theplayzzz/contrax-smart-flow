@@ -12,14 +12,14 @@ interface ContractDetailProps {
 }
 
 const ContractDetail: React.FC<ContractDetailProps> = ({ contract }) => {
-  const formattedDate = format(new Date(contract.createdAt), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
+  const formattedDate = format(new Date(contract.data_criacao), "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
   
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader className="bg-gray-50 border-b">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Contrato de {contract.contractType}</h2>
+            <h2 className="text-xl font-semibold">Contrato de {contract.dados_json.contractType}</h2>
             <div className="text-muted-foreground text-sm">{formattedDate}</div>
           </div>
         </CardHeader>
@@ -28,7 +28,7 @@ const ContractDetail: React.FC<ContractDetailProps> = ({ contract }) => {
           <div className="space-y-6 text-sm leading-relaxed">
             <div className="text-center mb-8">
               <h1 className="text-lg font-bold uppercase">
-                CONTRATO DE {contract.contractType.toUpperCase()}
+                CONTRATO DE {contract.dados_json.contractType.toUpperCase()}
               </h1>
               <p className="text-muted-foreground mt-1">
                 Ref: {contract.id}
@@ -38,8 +38,8 @@ const ContractDetail: React.FC<ContractDetailProps> = ({ contract }) => {
             <p className="font-semibold">PARTES CONTRATANTES:</p>
             
             <p>
-              <span className="font-semibold">CONTRATADA:</span> {contract.company.name}, inscrita no CNPJ sob o nº {contract.company.cnpj}, 
-              com sede em {contract.company.address}, neste ato representada por {contract.company.ownerName}, 
+              <span className="font-semibold">CONTRATADA:</span> {contract.dados_json.company.name}, inscrita no CNPJ sob o nº {contract.dados_json.company.cnpj}, 
+              com sede em {contract.dados_json.company.address}, neste ato representada por {contract.dados_json.company.ownerName}, 
               doravante denominada simplesmente CONTRATADA.
             </p>
             
@@ -52,12 +52,12 @@ const ContractDetail: React.FC<ContractDetailProps> = ({ contract }) => {
             <p className="font-semibold">OBJETO DO CONTRATO:</p>
             
             <p>
-              O presente contrato tem por objeto a prestação de serviços de {contract.contractType.toLowerCase()} 
+              O presente contrato tem por objeto a prestação de serviços de {contract.dados_json.contractType.toLowerCase()} 
               pela CONTRATADA à CONTRATANTE, conforme as especificações descritas neste instrumento.
-              {contract.description && (
+              {contract.dados_json.description && (
                 <>
                   <br /><br />
-                  <span className="font-semibold">Descrição específica:</span> {contract.description}
+                  <span className="font-semibold">Descrição específica:</span> {contract.dados_json.description}
                 </>
               )}
             </p>
@@ -66,7 +66,7 @@ const ContractDetail: React.FC<ContractDetailProps> = ({ contract }) => {
             
             <p>
               <span className="font-semibold">1. SERVIÇOS A SEREM PRESTADOS</span><br />
-              A CONTRATADA compromete-se a prestar serviços de {contract.contractType.toLowerCase()} nas áreas específicas acordadas 
+              A CONTRATADA compromete-se a prestar serviços de {contract.dados_json.contractType.toLowerCase()} nas áreas específicas acordadas 
               entre as partes, incluindo, mas não se limitando a: análises, recomendações, relatórios e acompanhamento de atividades.
             </p>
             
@@ -111,8 +111,8 @@ const ContractDetail: React.FC<ContractDetailProps> = ({ contract }) => {
                 <div className="text-center">
                   <div className="border-t border-black w-48 mx-auto pt-2">
                     <p>CONTRATADA</p>
-                    <p>{contract.company.name}</p>
-                    <p>{contract.company.cnpj}</p>
+                    <p>{contract.dados_json.company.name}</p>
+                    <p>{contract.dados_json.company.cnpj}</p>
                   </div>
                 </div>
                 

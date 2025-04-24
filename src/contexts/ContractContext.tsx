@@ -13,10 +13,11 @@ import {
 } from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from 'sonner';
+import { triggerContractWebhook } from "@/utils/webhookUtils";
 
 interface ContractContextType {
   contracts: Contract[];
-  addContract: (data: Omit<Contract, "id" | "createdAt" | "userId">) => void;
+  addContract: (data: Omit<Contract["dados_json"], "dataConfirmed"> & { dataConfirmed: boolean }) => void;
   getContractById: (id: string) => Contract | undefined;
 }
 
@@ -37,19 +38,24 @@ export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return [];
   });
 
-  const addContract = (data: Omit<Contract, "id" | "createdAt" | "userId">) => {
+  const addContract = (data: Omit<Contract["dados_json"], "dataConfirmed"> & { dataConfirmed: boolean }) => {
     if (!user) return;
 
     const newContract: Contract = {
       id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-      userId: user.id,
-      ...data
+      user_id: user.id,
+      dados_json: data,
+      data_criacao: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     };
 
     const updatedContracts = [...contracts, newContract];
     setContracts(updatedContracts);
     localStorage.setItem("contracts", JSON.stringify(updatedContracts));
+    
+    // Trigger webhook
+    triggerContractWebhook(newContract);
+    
     toast.success('Contrato gerado com sucesso!');
   };
 

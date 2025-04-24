@@ -42,7 +42,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Mock validation
       if (email === "demo@example.com" && password === "password") {
-        const user: User = { id: "1", email, name: "Usuário Demo" };
+        const user: User = { 
+          id: "1", 
+          email,
+          user_metadata: { name: "Usuário Demo" }
+        };
         setUser(user);
         localStorage.setItem("user", JSON.stringify(user));
         
@@ -66,7 +70,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      const user: User = { id: Date.now().toString(), email, name };
+      const user: User = { 
+        id: Date.now().toString(), 
+        email,
+        user_metadata: { name }
+      };
       setUser(user);
       localStorage.setItem("user", JSON.stringify(user));
       

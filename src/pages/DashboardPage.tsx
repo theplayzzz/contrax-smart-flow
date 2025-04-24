@@ -19,7 +19,7 @@ const DashboardPage: React.FC = () => {
     .slice(0, 3);
 
   const getUserDisplayName = () => {
-    return user?.user_metadata?.name || user?.email || 'User';
+    return user?.name || user?.user_metadata?.name || user?.email || 'User';
   };
 
   return (
@@ -69,15 +69,15 @@ const DashboardPage: React.FC = () => {
                 <Card key={contract.id}>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-medium">
-                      {contract.company.name}
+                      {contract.dados_json.company.name}
                     </CardTitle>
                     <p className="text-xs text-muted-foreground">
-                      {contract.contractType}
+                      {contract.dados_json.contractType}
                     </p>
                   </CardHeader>
                   <CardContent className="pb-2">
                     <p className="text-xs line-clamp-2">
-                      {contract.company.cnpj} • {contract.company.address}
+                      {contract.dados_json.company.cnpj} • {contract.dados_json.company.address}
                     </p>
                   </CardContent>
                   <CardFooter>
