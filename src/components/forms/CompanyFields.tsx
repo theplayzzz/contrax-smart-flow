@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/form";
 import CNPJField from "./CNPJField";
 import { fetchCompanyData } from "@/services/cnpjaService";
+import { toast } from "sonner";
 
 export const CompanyFields = () => {
   const { control, setValue } = useFormContext();
@@ -20,10 +21,7 @@ export const CompanyFields = () => {
     const cnpj = control._formValues.cnpj;
     
     if (cnpj.replace(/\D/g, "").length !== 14) {
-      control.setError("cnpj", {
-        type: "manual",
-        message: "CNPJ inválido",
-      });
+      toast.error("CNPJ inválido. Digite um CNPJ completo.");
       return;
     }
     
@@ -37,7 +35,11 @@ export const CompanyFields = () => {
         setValue("ownerName", companyData.ownerName);
         setValue("address", companyData.address);
         setValue("phone", companyData.phone);
+        toast.success("Dados da empresa carregados com sucesso!");
       }
+    } catch (error) {
+      console.error("Error in handleCNPJSearch:", error);
+      toast.error("Erro ao processar dados da empresa");
     } finally {
       setIsLoading(false);
     }
