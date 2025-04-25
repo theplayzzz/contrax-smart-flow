@@ -5,4 +5,27 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = 'https://wzhegwhhsxwdfxwwjjur.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6aGVnd2hoc3h3ZGZ4d3dqanVyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1MzQzNjQsImV4cCI6MjA2MTExMDM2NH0.9Usj2LxNMmbpATCJ7LyKaqQw1aceo4L7jbuwDkDJPSo';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Create the Supabase client with debugging
+console.log("Initializing Supabase client with URL:", supabaseUrl);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  db: {
+    schema: 'public',
+  },
+  global: {
+    fetch: (...args) => {
+      console.log("Supabase fetch request:", args[0]);
+      return fetch(...args);
+    },
+  },
+});
+
+console.log("Supabase client initialized");
+
+// Test the connection
+supabase.auth.getSession().then(({ data, error }) => {
+  if (error) {
+    console.error("Error connecting to Supabase:", error);
+  } else {
+    console.log("Supabase connection successful:", data.session ? "User is logged in" : "No active session");
+  }
+});

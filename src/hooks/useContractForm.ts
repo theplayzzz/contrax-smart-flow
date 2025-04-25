@@ -102,6 +102,9 @@ export const useContractForm = () => {
 
   const onSubmit = async (data: ContractFormData) => {
     console.log("onSubmit called with data:", data);
+    console.log("Data type check - saleDate:", typeof data.saleDate);
+    console.log("Data type check - paymentDate:", typeof data.paymentDate);
+    console.log("Data type check - contractValue:", typeof data.contractValue);
     
     try {
       const { cnpj, name, ownerName, address, phone, segment, customSegment, cep, businessName } = data;
@@ -120,7 +123,8 @@ export const useContractForm = () => {
       
       console.log("Preparing to add contract with company data:", company);
       
-      await addContract({
+      // Make sure we have properly formatted data
+      const contractData = {
         company,
         segment: data.segment,
         commercialTeam: data.commercialTeam,
@@ -142,13 +146,24 @@ export const useContractForm = () => {
         dataConfirmed: data.dataConfirmed,
         contractType: data.contractType,
         description: data.description
-      });
+      };
+      
+      console.log("Final contract data to be submitted:", contractData);
+      
+      await addContract(contractData);
       
       console.log("Contract added successfully");
       navigate("/contracts");
       return true;
     } catch (error) {
-      console.error("Error in onSubmit:", error);
+      console.error("Error in onSubmit - detailed error:", error);
+      if (error instanceof Error) {
+        console.error("Error name:", error.name);
+        console.error("Error message:", error.message);
+        console.error("Error stack:", error.stack);
+      } else if (typeof error === 'object' && error !== null) {
+        console.error("Error object details:", JSON.stringify(error));
+      }
       throw error;
     }
   };

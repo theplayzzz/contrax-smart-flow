@@ -19,11 +19,13 @@ const ContractForm: React.FC = () => {
   const { form, onSubmit } = useContractForm();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
 
   const handleSubmit = async (data: ContractFormData) => {
     console.log("Form submitted with data:", data);
     setIsSubmitting(true);
     setValidationErrors([]);
+    setSubmissionError(null);
     
     try {
       console.log("Attempting to submit form...");
@@ -32,7 +34,16 @@ const ContractForm: React.FC = () => {
       toast.success("Contrato gerado com sucesso!");
       // Navigation is now handled in the onSubmit function
     } catch (error) {
-      console.error("Erro ao enviar formulário:", error);
+      console.error("Erro ao enviar formulário - detailed error:", error);
+      if (error instanceof Error) {
+        console.error("Error name:", error.name);
+        console.error("Error message:", error.message);
+        console.error("Error stack:", error.stack);
+        setSubmissionError(error.message);
+      } else if (typeof error === 'object' && error !== null) {
+        console.error("Error object details:", JSON.stringify(error));
+        setSubmissionError("Erro desconhecido ao processar o contrato");
+      }
       toast.error("Erro ao gerar contrato. Por favor, tente novamente.");
     } finally {
       setIsSubmitting(false);
@@ -61,7 +72,7 @@ const ContractForm: React.FC = () => {
     // Create a type-safe array of field names from our schema
     const formFields: Array<keyof ContractFormData> = [
       "cnpj", "name", "ownerName", "address", "phone", "businessName",
-      "commercialTeam", "segment", "customSegment", "projectType", 
+      "commercialTeam", "segment", "projectType", 
       "customProjectType", "salesRepresentative", "bdrRepresentative",
       "leadSource", "saleDate", "paymentDate", "signerName", "signerEmail",
       "cep", "contractValue", "paymentMethod", "duration", "customDuration",
@@ -102,11 +113,27 @@ const ContractForm: React.FC = () => {
           </Alert>
         )}
         
+        {submissionError && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              <div className="font-bold mb-2">Erro ao enviar contrato:</div>
+              <div>{submissionError}</div>
+            </AlertDescription>
+          </Alert>
+        )}
+        
         <Form {...form}>
           <form 
             onSubmit={(e) => {
               console.log("Form submit event triggered");
-              form.handleSubmit(handleSubmit)(e);
+              // Execute validation check before submitting
+              debugFormSubmit();
+              if (form.formState.isValid) {
+                form.handleSubmit(handleSubmit)(e);
+              } else {
+                e.preventDefault();
+              }
             }} 
             className="space-y-8"
           >

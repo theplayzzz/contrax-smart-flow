@@ -28,13 +28,20 @@ export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
 
       try {
+        console.log("Fetching contracts for user:", user);
+        console.log("User ID type:", typeof user.id);
+        console.log("User ID value:", user.id);
+        
         const { data, error } = await supabase
           .from('contracts')
           .select('*')
           .eq('user_id', user.id);
 
         if (error) {
-          console.error('Error loading contracts:', error);
+          console.error('Error loading contracts - detailed error:', error);
+          console.error('Error code:', error.code);
+          console.error('Error message:', error.message);
+          console.error('Error details:', error.details);
           toast.error('Erro ao carregar contratos');
           return;
         }
@@ -61,19 +68,29 @@ export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     try {
       console.log("Creating new contract with user_id:", user.id);
+      console.log("User ID type:", typeof user.id);
+      
+      // Convert user.id to a proper UUID string if it's not already
+      const userIdString = typeof user.id === 'string' ? user.id : String(user.id);
+      console.log("Converted user ID:", userIdString);
       
       // Generate UUID for contract
       const contractId = crypto.randomUUID();
+      console.log("Generated contract ID:", contractId);
       
       const newContract: Contract = {
         id: contractId,
-        user_id: user.id,
+        user_id: userIdString,
         dados_json: data,
         data_criacao: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
 
       console.log("Contract to be saved:", newContract);
+      console.log("Contract.user_id type:", typeof newContract.user_id);
+
+      // Log the full request details
+      console.log("About to send request to Supabase with payload:", JSON.stringify(newContract));
 
       // Save to Supabase
       const { data: savedData, error } = await supabase
@@ -83,7 +100,10 @@ export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         .single();
 
       if (error) {
-        console.error('Error saving contract to Supabase:', error);
+        console.error('Error saving contract to Supabase - detailed error:', error);
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        console.error('Error details:', error.details);
         toast.error('Erro ao salvar contrato no banco de dados');
         throw error;
       }
@@ -109,7 +129,12 @@ export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       
       return;
     } catch (error) {
-      console.error("Erro ao adicionar contrato:", error);
+      console.error("Erro ao adicionar contrato - detailed error:", error);
+      if (error instanceof Error) {
+        console.error("Error name:", error.name);
+        console.error("Error message:", error.message);
+        console.error("Error stack:", error.stack);
+      }
       toast.error("Ocorreu um erro ao gerar o contrato. Por favor, tente novamente.");
       throw error;
     }
