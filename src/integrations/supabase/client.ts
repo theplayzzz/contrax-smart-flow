@@ -27,5 +27,27 @@ supabase.auth.getSession().then(({ data, error }) => {
     console.error("Error connecting to Supabase:", error);
   } else {
     console.log("Supabase connection successful:", data.session ? "User is logged in" : "No active session");
+    console.log("Supabase auth:", data);
   }
 });
+
+// Teste simples de inserção para verificar a conexão com o banco
+const testTableConnection = async () => {
+  try {
+    console.log("Testing database connection by checking schema...");
+    const { data, error } = await supabase
+      .from('contracts')
+      .select('id')
+      .limit(1);
+    
+    if (error) {
+      console.error("Error testing contracts table:", error);
+    } else {
+      console.log("Successfully connected to contracts table:", data);
+    }
+  } catch (err) {
+    console.error("Exception in testing table connection:", err);
+  }
+};
+
+testTableConnection();

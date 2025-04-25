@@ -14,6 +14,17 @@ interface ContractContextType {
 
 const ContractContext = createContext<ContractContextType | undefined>(undefined);
 
+// Função para validar UUIDs
+const isValidUUID = (uuid: string) => {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(uuid);
+};
+
+// Função para gerar UUID v4 válido
+const generateUUID = () => {
+  return crypto.randomUUID();
+};
+
 export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   console.log("ContractProvider rendering");
   const { user } = useAuth();
@@ -31,6 +42,14 @@ export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         console.log("Fetching contracts for user:", user);
         console.log("User ID type:", typeof user.id);
         console.log("User ID value:", user.id);
+        console.log("Is valid UUID:", isValidUUID(user.id));
+        
+        // Verificar se ID é um UUID válido antes de consultar
+        if (!isValidUUID(user.id)) {
+          console.warn("User ID is not a valid UUID. No contracts will be loaded.");
+          setContracts([]);
+          return;
+        }
         
         const { data, error } = await supabase
           .from('contracts')
@@ -69,10 +88,11 @@ export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     try {
       console.log("Creating new contract with user_id:", user.id);
       console.log("User ID type:", typeof user.id);
+      console.log("Is valid UUID:", isValidUUID(user.id));
       
-      // Convert user.id to a proper UUID string if it's not already
-      const userIdString = typeof user.id === 'string' ? user.id : String(user.id);
-      console.log("Converted user ID:", userIdString);
+      // Usar um UUID válido
+      const userIdString = isValidUUID(user.id) ? user.id : generateUUID();
+      console.log("User ID to be used for contract:", userIdString);
       
       // Generate UUID for contract
       const contractId = crypto.randomUUID();

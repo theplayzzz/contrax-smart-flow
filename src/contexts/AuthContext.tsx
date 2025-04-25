@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { User } from "@/types";
 import { toast } from 'sonner';
+import { supabase } from "@/integrations/supabase/client";
 
 interface AuthContextType {
   user: User | null;
@@ -14,6 +15,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Função para gerar UUID v4 válido
+const generateUUID = () => {
+  return crypto.randomUUID();
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -24,7 +30,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        const parsedUser = JSON.parse(storedUser);
+        
+        // Garantir que o usuário tenha um ID no formato UUID
+        if (!parsedUser.id || typeof parsedUser.id !== 'string' || !parsedUser.id.includes('-')) {
+          console.log("Convertendo ID do usuário para UUID válido");
+          parsedUser.id = generateUUID();
+          localStorage.setItem("user", JSON.stringify(parsedUser));
+        }
+        
+        setUser(parsedUser);
       } catch (error) {
         console.error("Failed to parse stored user:", error);
         localStorage.removeItem("user");
@@ -43,7 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Mock validation
       if (email === "demo@example.com" && password === "password") {
         const user: User = { 
-          id: "1", 
+          id: generateUUID(), 
           email,
           user_metadata: { name: "Usuário Demo" }
         };
@@ -71,7 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       const user: User = { 
-        id: Date.now().toString(), 
+        id: generateUUID(), 
         email,
         user_metadata: { name }
       };
