@@ -15,7 +15,7 @@ const RegisterPage: React.FC = () => {
   return (
     <AuthLayout
       title="Crie sua conta"
-      subtitle="Preencha os dados abaixo para se registrar no sistema."
+      subtitle="Preencha os dados abaixo para se registrar no sistema. Seus dados serão salvos automaticamente no banco de dados."
     >
       <RegisterForm />
     </AuthLayout>

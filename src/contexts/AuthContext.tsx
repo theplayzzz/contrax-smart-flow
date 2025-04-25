@@ -97,32 +97,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock validation
-      if (email === "demo@example.com" && password === "password") {
-        const userId = generateUUID();
-        const user: User = { 
-          id: userId, 
-          email,
-          user_metadata: { name: "Usuário Demo" }
+      console.log("Iniciando autenticação real com Supabase para:", email);
+
+      // Usar autenticação real do Supabase em vez de simulação
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        console.error("Erro de autenticação Supabase:", error);
+        toast.error(error.message || 'Credenciais inválidas');
+        return;
+      }
+
+      if (data.user) {
+        console.log("Login bem-sucedido:", data.user);
+        // Criar objeto de usuário a partir da resposta do Supabase
+        const user: User = {
+          id: data.user.id,
+          email: data.user.email || "",
+          user_metadata: { 
+            name: data.user.user_metadata?.name || email.split('@')[0] 
+          }
         };
+        
         setUser(user);
         localStorage.setItem("user", JSON.stringify(user));
         
         // Salvar perfil no Supabase
-        await saveUserProfile(userId, "Usuário Demo");
+        await saveUserProfile(
+          data.user.id, 
+          data.user.user_metadata?.name || email.split('@')[0]
+        );
         
         const redirectPath = location.state?.from?.pathname || "/dashboard";
         navigate(redirectPath);
         toast.success('Login realizado com sucesso!');
-      } else {
-        toast.error('Credenciais inválidas');
       }
     } catch (error) {
+      console.error("Erro não tratado durante login:", error);
       toast.error('Erro ao fazer login');
-      console.error("Login error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -131,36 +146,63 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (email: string, password: string, name: string) => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log("Registrando novo usuário com Supabase:", email, name);
       
-      const userId = generateUUID();
-      const user: User = { 
-        id: userId, 
+      // Usar registro real do Supabase em vez de simulação
+      const { data, error } = await supabase.auth.signUp({
         email,
-        user_metadata: { name }
-      };
-      setUser(user);
-      localStorage.setItem("user", JSON.stringify(user));
-      
-      // Salvar perfil no Supabase
-      await saveUserProfile(userId, name);
-      
-      navigate("/dashboard");
-      toast.success('Registro realizado com sucesso!');
+        password,
+        options: {
+          data: {
+            name: name
+          }
+        }
+      });
+
+      if (error) {
+        console.error("Erro de registro Supabase:", error);
+        toast.error(error.message || 'Erro ao registrar');
+        return;
+      }
+
+      if (data.user) {
+        console.log("Registro bem-sucedido:", data.user);
+        // Criar objeto de usuário a partir da resposta do Supabase
+        const user: User = {
+          id: data.user.id,
+          email: data.user.email || "",
+          user_metadata: { name }
+        };
+        
+        setUser(user);
+        localStorage.setItem("user", JSON.stringify(user));
+        
+        // Salvar perfil no Supabase
+        await saveUserProfile(data.user.id, name);
+        
+        navigate("/dashboard");
+        toast.success('Registro realizado com sucesso!');
+      }
     } catch (error) {
+      console.error("Erro não tratado durante registro:", error);
       toast.error('Erro ao registrar');
-      console.error("Registration error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-    navigate("/");
-    toast.success('Logout realizado com sucesso!');
+  const logout = async () => {
+    try {
+      // Usar logout real do Supabase em vez de simulação
+      await supabase.auth.signOut();
+      setUser(null);
+      localStorage.removeItem("user");
+      navigate("/");
+      toast.success('Logout realizado com sucesso!');
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+      toast.error('Erro ao fazer logout');
+    }
   };
 
   return (
