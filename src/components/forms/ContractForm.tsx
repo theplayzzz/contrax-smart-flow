@@ -20,7 +20,7 @@ const ContractForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: ContractFormData) => {
     console.log("Form submitted with data:", data);
     setIsSubmitting(true);
     setValidationErrors([]);
@@ -106,7 +106,6 @@ const ContractForm: React.FC = () => {
           <form 
             onSubmit={(e) => {
               console.log("Form submit event triggered");
-              debugFormSubmit();
               form.handleSubmit(handleSubmit)(e);
             }} 
             className="space-y-8"
@@ -158,7 +157,6 @@ const ContractForm: React.FC = () => {
                 type="submit" 
                 disabled={isSubmitting}
                 className="gap-2"
-                onClick={() => console.log("Button clicked")}
               >
                 {isSubmitting ? (
                   <>

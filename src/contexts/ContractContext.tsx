@@ -73,10 +73,14 @@ export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         updated_at: new Date().toISOString()
       };
 
+      console.log("Contract to be saved:", newContract);
+
       // Save to Supabase
-      const { error } = await supabase
+      const { data: savedData, error } = await supabase
         .from('contracts')
-        .insert(newContract);
+        .insert([newContract])
+        .select()
+        .single();
 
       if (error) {
         console.error('Error saving contract to Supabase:', error);
@@ -84,12 +88,12 @@ export const ContractProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         throw error;
       }
 
-      console.log("Contract saved successfully to Supabase, now updating local state");
-      setContracts(prevContracts => [...prevContracts, newContract]);
+      console.log("Contract saved successfully to Supabase with response:", savedData);
+      setContracts(prevContracts => [...prevContracts, savedData]);
       
       // Trigger webhook after successful save
       try {
-        const webhookSuccess = await triggerContractWebhook(newContract);
+        const webhookSuccess = await triggerContractWebhook(savedData);
         
         if (webhookSuccess) {
           console.log("Webhook triggered successfully");
