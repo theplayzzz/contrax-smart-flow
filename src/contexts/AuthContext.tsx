@@ -48,7 +48,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(false);
   }, []);
 
-  // For demo purposes - in a real app, use a proper backend
+  // Função para criar ou atualizar o perfil do usuário no Supabase
+  const saveUserProfile = async (userId: string, name: string) => {
+    try {
+      console.log("Salvando perfil de usuário no Supabase:", { userId, name });
+      
+      // Verificar se o perfil já existe
+      const { data: existingProfile, error: fetchError } = await supabase
+        .from('profiles')
+        .select()
+        .eq('id', userId)
+        .maybeSingle();
+      
+      if (fetchError) {
+        console.error("Erro ao verificar perfil existente:", fetchError);
+        return;
+      }
+      
+      if (existingProfile) {
+        console.log("Perfil já existe, atualizando...");
+        const { error } = await supabase
+          .from('profiles')
+          .update({ role: 'user' })
+          .eq('id', userId);
+          
+        if (error) {
+          console.error("Erro ao atualizar perfil:", error);
+        } else {
+          console.log("Perfil atualizado com sucesso!");
+        }
+      } else {
+        console.log("Criando novo perfil...");
+        const { error } = await supabase
+          .from('profiles')
+          .insert([{ id: userId, role: 'user' }]);
+          
+        if (error) {
+          console.error("Erro ao criar perfil:", error);
+        } else {
+          console.log("Perfil criado com sucesso!");
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao salvar perfil:", error);
+    }
+  };
+
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
@@ -57,13 +102,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Mock validation
       if (email === "demo@example.com" && password === "password") {
+        const userId = generateUUID();
         const user: User = { 
-          id: generateUUID(), 
+          id: userId, 
           email,
           user_metadata: { name: "Usuário Demo" }
         };
         setUser(user);
         localStorage.setItem("user", JSON.stringify(user));
+        
+        // Salvar perfil no Supabase
+        await saveUserProfile(userId, "Usuário Demo");
         
         const redirectPath = location.state?.from?.pathname || "/dashboard";
         navigate(redirectPath);
@@ -85,13 +134,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      const userId = generateUUID();
       const user: User = { 
-        id: generateUUID(), 
+        id: userId, 
         email,
         user_metadata: { name }
       };
       setUser(user);
       localStorage.setItem("user", JSON.stringify(user));
+      
+      // Salvar perfil no Supabase
+      await saveUserProfile(userId, name);
       
       navigate("/dashboard");
       toast.success('Registro realizado com sucesso!');
